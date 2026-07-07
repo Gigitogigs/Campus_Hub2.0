@@ -108,3 +108,23 @@ class OrganizationMember(models.Model):
 
     def __str__(self):
         return f"{self.user.display_name} in {self.organization.name} ({self.role})"
+
+class Follow(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(UserPublic, on_delete=models.CASCADE, related_name="following")
+    Organization = models.ForeignKey(Organization, on_delete=models.CASCADE, related_name="followers")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'follows'
+        ordering = ['-created_at']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['organization', 'user'],
+                name='unique_organization_follower'
+            )
+        ]
+    
+    def __str__(self):
+        return f"{self.user.display_name} follows {self.organization.name}"
